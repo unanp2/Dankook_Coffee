@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'menu_service.dart';
 import 'menu_model.dart';
 import 'menu_detail.dart';
+import '../shopping/cart_model.dart';
+import '../shopping/cart_page.dart';
 
 class MenuPage extends StatefulWidget {
   @override
@@ -10,12 +14,30 @@ class MenuPage extends StatefulWidget {
 
 class _MenuPageState extends State<MenuPage> {
   late Future<List<Menu>> futureMenu;
-  int selectedCategoryId = 1; // Default category ID
+  List<Menu> filteredMenu = [];
+  String searchQuery = '';
+  int selectedCategoryId = 0; // 기본 카테고리 ID
 
   @override
   void initState() {
     super.initState();
     futureMenu = MenuService().fetchMenu();
+    futureMenu.then((menu) {
+      setState(() {
+        filteredMenu = menu;
+      });
+    });
+  }
+
+  void filterMenu() {
+    futureMenu.then((menuList) {
+      setState(() {
+        filteredMenu = menuList.where((menu) {
+          return (selectedCategoryId == 0 || menu.menuCategoryId == selectedCategoryId) &&
+              menu.menuName.toLowerCase().contains(searchQuery.toLowerCase());
+        }).toList();
+      });
+    });
   }
 
   @override
@@ -25,16 +47,66 @@ class _MenuPageState extends State<MenuPage> {
         title: const Text('DANKOOK COFFEE'),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.home),
+            onPressed: () {
+              // Add navigation to home page here
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.shopping_cart),
+            onPressed: () {
+              Navigator.pushNamed(context, CartPage.routeName);
+            },
+          ),
+        ],
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(50.0),
+          child: Container(
+            alignment: Alignment.centerLeft,
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Text(
+              '죽전단국대점',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
       ),
       body: Container(
         color: Colors.white,
         child: Column(
           children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                style: TextStyle(color: Colors.black), // 검색 글씨를 검은색으로 설정
+                decoration: InputDecoration(
+                  hintText: '검색',
+                  hintStyle: TextStyle(color: Colors.black), // 힌트 글씨를 검은색으로 설정
+                  prefixIcon: Icon(Icons.search, color: Colors.black), // 아이콘 색상 설정
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    searchQuery = value;
+                  });
+                  filterMenu();
+                },
+              ),
+            ),
             CategorySelector(
               onCategorySelected: (id) {
                 setState(() {
                   selectedCategoryId = id;
                 });
+                filterMenu();
               },
             ),
             Expanded(
@@ -46,9 +118,7 @@ class _MenuPageState extends State<MenuPage> {
                   } else if (snapshot.hasError) {
                     return Center(child: Text('Error: ${snapshot.error}'));
                   } else {
-                    final menus = snapshot.data!
-                        .where((menu) => menu.menuCategoryId == selectedCategoryId)
-                        .toList();
+                    final menus = filteredMenu.where((menu) => selectedCategoryId == 0 || menu.menuCategoryId == selectedCategoryId).toList();
                     return GridView.builder(
                       padding: const EdgeInsets.all(10),
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -98,19 +168,24 @@ class CategorySelector extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           CategoryButton(
+              categoryId: 0,
+              categoryName: '전체',
+              icon: Icons.list,
+              onCategorySelected: onCategorySelected),
+          CategoryButton(
               categoryId: 1,
               categoryName: '추천',
               icon: Icons.star,
               onCategorySelected: onCategorySelected),
           CategoryButton(
               categoryId: 2,
-              categoryName: '푸드',
-              icon: Icons.fastfood,
+              categoryName: '음료',
+              icon: Icons.local_drink,
               onCategorySelected: onCategorySelected),
           CategoryButton(
               categoryId: 3,
-              categoryName: '음료',
-              icon: Icons.local_drink,
+              categoryName: '푸드',
+              icon: Icons.fastfood,
               onCategorySelected: onCategorySelected),
         ],
       ),
@@ -166,11 +241,18 @@ class MenuItem extends StatelessWidget {
                   topLeft: Radius.circular(10),
                   topRight: Radius.circular(10),
                 ),
-                child: Image.network(
-                  menu.menuPictureUrl,
+                child: CachedNetworkImage(
+                  imageUrl: menu.menuPictureUrl,
                   width: double.infinity,
                   height: 120,
                   fit: BoxFit.cover,
+                  placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                  errorWidget: (context, url, error) => Image.asset(
+                    'assets/images/placeholder.png',
+                    width: double.infinity,
+                    height: 120,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
               Positioned(
@@ -178,7 +260,13 @@ class MenuItem extends StatelessWidget {
                 right: 8,
                 child: GestureDetector(
                   onTap: () {
-                    // Handle add to cart action
+                    Provider.of<Cart>(context, listen: false).addItem(menu, 1);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('${menu.menuName} 가 장바구니에 추가되었습니다.'),
+                        duration: Duration(seconds: 1),
+                      ),
+                    );
                   },
                   child: Container(
                     padding: const EdgeInsets.all(6),
