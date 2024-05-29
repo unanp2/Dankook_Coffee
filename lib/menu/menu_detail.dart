@@ -50,7 +50,7 @@ class _MenuDetailPageState extends State<MenuDetailPage> {
           IconButton(
             icon: Icon(Icons.home),
             onPressed: () {
-              // Navigate to home
+              Navigator.pushNamed(context, '/');
             },
           ),
         ],

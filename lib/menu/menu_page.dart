@@ -51,7 +51,7 @@ class _MenuPageState extends State<MenuPage> {
           IconButton(
             icon: Icon(Icons.home),
             onPressed: () {
-              // Add navigation to home page here
+              Navigator.pushNamed(context, '/');
             },
           ),
           IconButton(
@@ -304,7 +304,7 @@ class MenuItem extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   '${menu.menuCost} 원',
-                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+                  style: const TextStyle(fontSize: 14, color: Colors.black), // Changed to black
                 ),
               ],
             ),
