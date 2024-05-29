@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'home_page.dart';
 import 'store/store_info.dart';
 import 'menu/menu_page.dart';
+import 'shopping/cart_model.dart';
 import 'shopping/cart_page.dart';
 
 void main() {
@@ -13,17 +15,22 @@ class FigmaToCodeApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData.light().copyWith(
-        scaffoldBackgroundColor: const Color.fromARGB(255, 18, 32, 47),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => Cart()),
+      ],
+      child: MaterialApp(
+        theme: ThemeData.light().copyWith(
+          scaffoldBackgroundColor: const Color.fromARGB(255, 18, 32, 47),
+        ),
+        initialRoute: '/',
+        routes: {
+          '/': (context) => const HomePage(),
+          '/store-info': (context) => StoreInfoPage(),
+          '/menu': (context) => MenuPage(),
+          '/cart': (context) => CartPage(),
+        },
       ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const HomePage(),
-        '/store-info': (context) => StoreInfoPage(),
-        '/menu': (context) => MenuPage(),
-        '/cart': (context) => CartPage(),
-      },
     );
   }
 }
