@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'home_page.dart';
+import 'store/store_info.dart';
 import 'menu/menu_page.dart';
+import 'shopping/cart_page.dart';
 
 void main() {
   runApp(const FigmaToCodeApp());
@@ -11,10 +14,16 @@ class FigmaToCodeApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData.dark().copyWith(
+      theme: ThemeData.light().copyWith(
         scaffoldBackgroundColor: const Color.fromARGB(255, 18, 32, 47),
       ),
-      home: MenuPage(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const HomePage(),
+        '/store-info': (context) => StoreInfoPage(),
+        '/menu': (context) => MenuPage(),
+        '/cart': (context) => CartPage(),
+      },
     );
   }
 }

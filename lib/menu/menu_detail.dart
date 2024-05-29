@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'menu_model.dart';
+import '../shopping/cart_model.dart';
+import '../shopping/cart_page.dart';
 
 class MenuDetailPage extends StatefulWidget {
   final Menu menu;
@@ -36,6 +39,8 @@ class _MenuDetailPageState extends State<MenuDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final cart = Provider.of<Cart>(context, listen: false);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('DANKOOK COFFEE'),
@@ -52,7 +57,7 @@ class _MenuDetailPageState extends State<MenuDetailPage> {
       ),
       body: SafeArea(
         child: Container(
-          color: Colors.white,  // Set background color to white
+          color: Colors.white,
           child: ListView(
             children: [
               DetailContent(
@@ -62,6 +67,10 @@ class _MenuDetailPageState extends State<MenuDetailPage> {
                 decrementQuantity: decrementQuantity,
                 isFavorite: isFavorite,
                 toggleFavorite: toggleFavorite,
+                onAddToCart: () {
+                  cart.addItem(widget.menu, quantity);
+                  Navigator.pushNamed(context, CartPage.routeName);
+                },
               ),
             ],
           ),
@@ -78,6 +87,7 @@ class DetailContent extends StatelessWidget {
   final VoidCallback decrementQuantity;
   final bool isFavorite;
   final VoidCallback toggleFavorite;
+  final VoidCallback onAddToCart;
 
   const DetailContent({
     required this.menu,
@@ -86,6 +96,7 @@ class DetailContent extends StatelessWidget {
     required this.decrementQuantity,
     required this.isFavorite,
     required this.toggleFavorite,
+    required this.onAddToCart,
   });
 
   @override
@@ -213,7 +224,7 @@ class DetailContent extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: onAddToCart,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF232323),
                     padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 20),
