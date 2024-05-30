@@ -14,7 +14,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  TextEditingController _usernameController = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
 
   @override
@@ -43,7 +43,7 @@ class _LoginPageState extends State<LoginPage> {
                       height: 60,
                     ),
                     InputGrayButton(
-                      text_controller: _usernameController,
+                      text_controller: _emailController,
                       button_text: 'Enter your email',
                     ),
                     SizedBox(
@@ -66,17 +66,17 @@ class _LoginPageState extends State<LoginPage> {
                     SizedBox(height: 10,),
                     GestureDetector(
                       onTap: () {
-                        String username = _usernameController.text;
+                        String email = _emailController.text;
                         String password = _passwordController.text;
-                        bool namecheck = false;
+                        bool emailcheck = false;
                         bool passwordcheck = false;
-                        if (username == 'a@a') {
-                          namecheck = true;
+                        if (email == 'a@a') {
+                          emailcheck = true;
                         }
                         if (password == 'aa') {
                           passwordcheck = true;
                         }
-                        if (namecheck && passwordcheck) {
+                        if (emailcheck && passwordcheck) {
                           Navigator.push(context,
                               MaterialPageRoute(builder: (context) => HomePage()));
                         }
