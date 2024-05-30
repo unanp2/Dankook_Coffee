@@ -1,7 +1,33 @@
 import 'package:flutter/material.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final PageController _pageController = PageController(); // PageView를 제어하기 위한 PageController
+  int _currentPage = 0; // 현재 페이지를 저장하는 변수
+  final int _numPages = 8; // 총 페이지 수
+
+  @override
+  void dispose() {
+    _pageController.dispose(); // 페이지 컨트롤러 해제
+    super.dispose();
+  }
+
+  void _onPageChanged(int page) {
+    setState(() {
+      _currentPage = page;
+    });
+    if (page == _numPages) {
+      Future.delayed(Duration(milliseconds: 300), () {
+        _pageController.jumpToPage(0);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,6 +42,7 @@ class HomePage extends StatelessWidget {
               decoration: BoxDecoration(color: Colors.white),
               child: Stack(
                 children: [
+                  // 상단 네비게이션 바
                   Positioned(
                     left: 0,
                     top: 0,
@@ -29,7 +56,7 @@ class HomePage extends StatelessWidget {
                           IconButton(
                             icon: Icon(Icons.menu, color: Colors.black),
                             onPressed: () {
-                              // Add navigation logic here
+                              // 네비게이션 로직 추가
                             },
                           ),
                           Text(
@@ -44,27 +71,50 @@ class HomePage extends StatelessWidget {
                           IconButton(
                             icon: Icon(Icons.shopping_cart, color: Colors.black),
                             onPressed: () {
-                              // Add shopping cart navigation logic here
+                              // 쇼핑카트 네비게이션 로직 추가
                             },
                           ),
                         ],
                       ),
                     ),
                   ),
+                  // 광고 이미지를 위한 PageView
                   Positioned(
                     left: 0,
                     top: 50,
                     child: Container(
                       width: 360,
                       height: 360,
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: NetworkImage("https://via.placeholder.com/360x360"),
-                          fit: BoxFit.fill,
-                        ),
+                      child: PageView(
+                        controller: _pageController, // PageView를 제어하기 위한 컨트롤러
+                        onPageChanged: _onPageChanged, // 페이지 변경 시 호출될 콜백 함수
+                        children: List.generate(_numPages, (index) {
+                          return Image.asset("assets/images/ad_image$index.png", fit: BoxFit.fill);
+                        }),
                       ),
                     ),
                   ),
+                  // 페이지 인디케이터(점 표시)
+                  Positioned(
+                    left: 0,
+                    top: 410,
+                    right: 0,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(_numPages, (index) {
+                        return Container(
+                          margin: EdgeInsets.symmetric(horizontal: 4),
+                          width: _currentPage == index ? 12 : 8,
+                          height: _currentPage == index ? 12 : 8,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: _currentPage == index ? Colors.black : Colors.grey,
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                  // 사용자 정보 컨테이너
                   Positioned(
                     left: 21,
                     top: 463,
@@ -98,26 +148,30 @@ class HomePage extends StatelessWidget {
                           fontSize: 20,
                           fontFamily: 'Jua',
                           fontWeight: FontWeight.w400,
+                          decoration: TextDecoration.none, // 노란색 줄 제거
                         ),
                       ),
                     ),
                   ),
+                  // 하단 네비게이션 아이콘
                   Positioned(
                     left: 72,
                     top: 688,
                     child: Container(
                       width: 216,
-                      height: 55,
-                      child: Stack(
+                      height: 70, // 높이를 늘려서 글씨가 잘리지 않게 함
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _buildNavigationIcon(context, 3, 0, "https://via.placeholder.com/40x40", '가게 정보', '/store-info'),
-                          _buildNavigationIcon(context, 61, 1, "https://via.placeholder.com/39x40", '메뉴', '/menu'),
-                          _buildNavigationIcon(context, 118, 2, "https://via.placeholder.com/39x40", '리뷰', '/review'),
-                          _buildNavigationIcon(context, 173, 3, "https://via.placeholder.com/40x40", '커피 추천', '/coffee-recommend'),
+                          _buildNavigationIcon(context, 'assets/icons/coffee-shop 1.png', '가게 정보', '/store-info'),
+                          _buildNavigationIcon(context, 'assets/icons/menu2 1.png', '메뉴', '/menu'),
+                          _buildNavigationIcon(context, 'assets/icons/credit-card 1.png', '리뷰', '/review'),
+                          _buildNavigationIcon(context, 'assets/icons/cup 1.png', '커피 추천', '/coffee-recommend'),
                         ],
                       ),
                     ),
                   ),
+                  // 사용자 이름 및 쿠폰 정보
                   Positioned(
                     left: 186,
                     top: 487,
@@ -131,6 +185,7 @@ class HomePage extends StatelessWidget {
                               fontSize: 32,
                               fontFamily: 'Goldman',
                               fontWeight: FontWeight.w700,
+                              decoration: TextDecoration.none, // 노란색 줄 제거
                             ),
                           ),
                           TextSpan(
@@ -140,6 +195,7 @@ class HomePage extends StatelessWidget {
                               fontSize: 20,
                               fontFamily: 'Goldman',
                               fontWeight: FontWeight.w700,
+                              decoration: TextDecoration.none, // 노란색 줄 제거
                             ),
                           ),
                         ],
@@ -158,84 +214,11 @@ class HomePage extends StatelessWidget {
                         fontSize: 20,
                         fontFamily: 'Jua',
                         fontWeight: FontWeight.w400,
+                        decoration: TextDecoration.none, // 노란색 줄 제거
                       ),
                     ),
                   ),
-                  Positioned(
-                    left: 0,
-                    top: 0,
-                    child: Container(
-                      width: 360,
-                      height: 50,
-                      child: Stack(
-                        children: [
-                          Positioned(
-                            left: 0,
-                            top: 0,
-                            child: Container(
-                              width: 360,
-                              height: 50,
-                              decoration: BoxDecoration(color: Colors.white),
-                            ),
-                          ),
-                          Positioned(
-                            left: 18,
-                            top: 10,
-                            child: Container(
-                              width: 25,
-                              height: 25,
-                              decoration: BoxDecoration(
-                                image: DecorationImage(
-                                  image: NetworkImage("https://via.placeholder.com/25x25"),
-                                  fit: BoxFit.fill,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            left: 81,
-                            top: 17,
-                            child: Container(
-                              width: 198,
-                              height: 25,
-                              child: Stack(
-                                children: [
-                                  Positioned(
-                                    left: 0,
-                                    top: 0,
-                                    child: Text(
-                                      'DANKOOK COFFEE',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 20,
-                                        fontFamily: 'Black Han Sans',
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    left: 105,
-                                    top: 2,
-                                    child: Container(
-                                      width: 16,
-                                      height: 16,
-                                      decoration: BoxDecoration(
-                                        image: DecorationImage(
-                                          image: NetworkImage("https://via.placeholder.com/16x16"),
-                                          fit: BoxFit.fill,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  // 프로필 이미지
                   Positioned(
                     left: 34,
                     top: 487,
@@ -244,7 +227,7 @@ class HomePage extends StatelessWidget {
                       height: 147,
                       decoration: BoxDecoration(
                         image: DecorationImage(
-                          image: NetworkImage("https://via.placeholder.com/147x147"),
+                          image: AssetImage("assets/images/profile_image.png"),
                           fit: BoxFit.fill,
                         ),
                       ),
@@ -259,40 +242,36 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildNavigationIcon(BuildContext context, double left, int index, String imageUrl, String text, String route) {
-    return Positioned(
-      left: left,
-      top: 0,
-      child: Column(
-        children: [
-          GestureDetector(
-            onTap: () {
-              Navigator.pushNamed(context, route);
-            },
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: NetworkImage(imageUrl),
-                  fit: BoxFit.fill,
-                ),
-              ),
+  // 네비게이션 아이콘 생성 메서드
+  Widget _buildNavigationIcon(BuildContext context, String iconPath, String text, String route) {
+    return Column(
+      children: [
+        GestureDetector(
+          onTap: () {
+            Navigator.pushNamed(context, route); // 아이콘 클릭 시 해당 경로로 네비게이트
+          },
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: Colors.transparent,
             ),
+            child: Image.asset(iconPath, fit: BoxFit.contain),
           ),
-          SizedBox(height: 4),
-          Text(
-            text,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.black,
-              fontSize: 12,
-              fontFamily: 'Sunflower',
-              fontWeight: FontWeight.w500,
-            ),
+        ),
+        SizedBox(height: 4),
+        Text(
+          text,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 12,
+            fontFamily: 'Sunflower',
+            fontWeight: FontWeight.w500,
+            decoration: TextDecoration.none, // 노란색 줄 제거
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
