@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../menu/menu_model.dart';
 import '../shopping/cart_model.dart';
 import '../shopping/shopping_item.dart';
 import '../shopping/cart_page.dart';
+import 'menu_model.dart';
 
 class MenuDetailPage extends StatefulWidget {
   final Menu menu;

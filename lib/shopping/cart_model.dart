@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../database/DatabaseHelper.dart';
-import '../shopping/shopping_item.dart';
+import 'shopping_item.dart';
 
 class Cart with ChangeNotifier {
   List<ShoppingItem> _items = [];
-  double _totalAmount = 0.0;
+  int _totalAmount = 0;
   late DatabaseHelper _dbHelper;
 
   Cart(this._dbHelper) {
@@ -13,7 +13,7 @@ class Cart with ChangeNotifier {
 
   List<ShoppingItem> get items => _items;
 
-  double get totalAmount => _totalAmount;
+  int get totalAmount => _totalAmount;
 
   Future<void> loadCartItems() async {
     _items = await _dbHelper.fetchShoppingItems();

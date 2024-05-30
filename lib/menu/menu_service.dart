@@ -1,6 +1,5 @@
-
 import '../database/DatabaseHelper.dart';
-import '../menu/menu_model.dart';
+import 'menu_model.dart';
 
 class MenuService {
   final DatabaseHelper dbHelper;
