@@ -1,4 +1,3 @@
-import 'package:dankookcoffee/login/login_home.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -9,10 +8,15 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final PageController _pageController =
-      PageController(); // PageView를 제어하기 위한 PageController
-  int _currentPage = 0; // 현재 페이지를 저장하는 변수
+  late PageController _pageController; // PageView를 제어하기 위한 PageController
+  int _currentPage = 1; // 현재 페이지를 저장하는 변수, 시작 페이지를 1로 설정
   final int _numPages = 8; // 총 페이지 수
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: _currentPage);
+  }
 
   @override
   void dispose() {
@@ -24,9 +28,13 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _currentPage = page;
     });
-    if (page == _numPages) {
+    if (page == 0) {
       Future.delayed(Duration(milliseconds: 300), () {
-        _pageController.jumpToPage(0);
+        _pageController.jumpToPage(_numPages);
+      });
+    } else if (page == _numPages + 1) {
+      Future.delayed(Duration(milliseconds: 300), () {
+        _pageController.jumpToPage(1);
       });
     }
   }
@@ -58,40 +66,46 @@ class _HomePageState extends State<HomePage> {
                           IconButton(
                             icon: Icon(Icons.menu, color: Colors.black),
                             onPressed: () {
-                              Navigator.push(context, MaterialPageRoute(builder:(context) => LoginHomePage(),));
+                              // 네비게이션 로직 추가
                             },
                           ),
-                          SizedBox(width: 10,),
-                          Text(
-                            'DANKOOK',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 20,
-                              fontFamily: 'Black Han Sans',
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          Container(
-                            width: 30,
-                            height: 30,
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                image: AssetImage(
-                                    'assets/images/logo_image.png'), // 경로 수정
-                                fit: BoxFit.cover,
+                          Row(
+                            children: [
+                              Text(
+                                'DANKOOK',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 20,
+                                  fontFamily: 'Black Han Sans',
+                                  fontWeight: FontWeight.w700,
+                                  decoration: TextDecoration.none, // 노란색 줄 제거
+                                ),
                               ),
-                            ),
+                              SizedBox(width: 4,),
+                              Container(
+                                width: 30,
+                                height: 30,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage(
+                                        'assets/images/logo_image.png'), // 경로 수정
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 4,),
+                              Text(
+                                'COFFEE',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 20,
+                                  fontFamily: 'Black Han Sans',
+                                  fontWeight: FontWeight.w700,
+                                  decoration: TextDecoration.none, // 노란색 줄 제거
+                                ),
+                              ),
+                            ],
                           ),
-                          Text(
-                            'COFFEE',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 20,
-                              fontFamily: 'Black Han Sans',
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          SizedBox(width: 10,),
                           IconButton(
                             icon:
                                 Icon(Icons.shopping_cart, color: Colors.black),
@@ -113,13 +127,17 @@ class _HomePageState extends State<HomePage> {
                       child: PageView(
                         controller: _pageController, // PageView를 제어하기 위한 컨트롤러
                         onPageChanged: _onPageChanged, // 페이지 변경 시 호출될 콜백 함수
-                        children: List.generate(_numPages + 1, (index) {
-                          if (index == _numPages) {
+                        children: List.generate(_numPages + 2, (index) {
+                          if (index == 0) {
+                            return Image.asset(
+                                "assets/images/ad_image${_numPages - 1}.png",
+                                fit: BoxFit.fill);
+                          } else if (index == _numPages + 1) {
                             return Image.asset("assets/images/ad_image0.png",
                                 fit: BoxFit.fill);
                           } else {
                             return Image.asset(
-                                "assets/images/ad_image$index.png",
+                                "assets/images/ad_image${index - 1}.png",
                                 fit: BoxFit.fill);
                           }
                         }),
@@ -136,11 +154,11 @@ class _HomePageState extends State<HomePage> {
                       children: List.generate(_numPages, (index) {
                         return Container(
                           margin: EdgeInsets.symmetric(horizontal: 4),
-                          width: _currentPage == index ? 12 : 8,
-                          height: _currentPage == index ? 12 : 8,
+                          width: _currentPage == index + 1 ? 12 : 8,
+                          height: _currentPage == index + 1 ? 12 : 8,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: _currentPage == index
+                            color: _currentPage == index + 1
                                 ? Colors.black
                                 : Colors.grey,
                           ),
@@ -182,6 +200,7 @@ class _HomePageState extends State<HomePage> {
                           fontSize: 20,
                           fontFamily: 'Jua',
                           fontWeight: FontWeight.w400,
+                          decoration: TextDecoration.none, // 노란색 줄 제거
                         ),
                       ),
                     ),
@@ -231,6 +250,7 @@ class _HomePageState extends State<HomePage> {
                               fontSize: 32,
                               fontFamily: 'Goldman',
                               fontWeight: FontWeight.w700,
+                              decoration: TextDecoration.none, // 노란색 줄 제거
                             ),
                           ),
                           TextSpan(
@@ -240,6 +260,7 @@ class _HomePageState extends State<HomePage> {
                               fontSize: 20,
                               fontFamily: 'Goldman',
                               fontWeight: FontWeight.w700,
+                              decoration: TextDecoration.none, // 노란색 줄 제거
                             ),
                           ),
                         ],
@@ -258,6 +279,7 @@ class _HomePageState extends State<HomePage> {
                         fontSize: 20,
                         fontFamily: 'Jua',
                         fontWeight: FontWeight.w400,
+                        decoration: TextDecoration.none, // 노란색 줄 제거
                       ),
                     ),
                   ),
@@ -312,6 +334,7 @@ class _HomePageState extends State<HomePage> {
             fontSize: 12,
             fontFamily: 'Sunflower',
             fontWeight: FontWeight.w500,
+            decoration: TextDecoration.none, // 노란색 줄 제거
           ),
         ),
       ],
