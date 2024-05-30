@@ -15,7 +15,19 @@ class _LoginPageState extends State<LoginPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
       ),
-      body: Text("로그인"),
+      body: Container(
+        width: 400,
+        height: 720,
+        decoration: BoxDecoration(color: Colors.white),
+        child: Column(
+          children: [
+            Text(
+              '단국 커피 로그인',
+              style: TextStyle(fontWeight: FontWeight.w700, ),
+            )
+          ],
+        ),
+      ),
     );
   }
 }
