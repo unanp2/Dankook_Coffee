@@ -1,3 +1,4 @@
+import 'package:dankookcoffee/home_page.dart';
 import 'package:flutter/material.dart';
 
 class appbar extends StatelessWidget implements PreferredSizeWidget {
@@ -30,8 +31,14 @@ class appbar extends StatelessWidget implements PreferredSizeWidget {
             style: TextStyle(fontWeight: FontWeight.w700, letterSpacing: 0.5),
           ),
           SizedBox(
-            width: 42,
+            width: 32,
           ),
+          Container(
+              width: 22,
+              child: IconButton(
+                icon: Icon(Icons.home),
+                onPressed: () {Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));},
+              ))
         ],
       ),
     );
