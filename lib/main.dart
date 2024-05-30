@@ -1,3 +1,4 @@
+import 'package:dankookcoffee/store/store_info.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'menu/menu_page.dart';
@@ -32,6 +33,7 @@ class MyApp extends StatelessWidget {
         initialRoute: '/',
         routes: {
           '/': (context) => HomePage(),
+          '/store': (context) => StoreInfoPage(),
           '/menu': (context) => MenuPage(),
           CartPage.routeName: (context) => CartPage(),
           // 다른 페이지들도 여기에 추가

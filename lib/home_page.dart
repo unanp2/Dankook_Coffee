@@ -222,7 +222,7 @@ class _HomePageState extends State<HomePage> {
                               context,
                               'assets/icons/coffee-shop 1.png',
                               '가게 정보',
-                              '/store-info'),
+                              '/store'),
                           _buildNavigationIcon(context,
                               'assets/icons/menu2 1.png', '메뉴', '/menu'),
                           _buildNavigationIcon(
