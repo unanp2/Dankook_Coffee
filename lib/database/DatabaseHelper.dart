@@ -2,8 +2,9 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
-import '../lib/menu/menu_model.dart';
-import '../lib/store/store_model.dart';
+import '../menu/menu_model.dart';
+import '../store/store_model.dart';
+import '../shopping/shopping_item.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -98,6 +99,7 @@ class DatabaseHelper {
         menu_id INTEGER,
         store_id INTEGER,
         menu_picture_url TEXT,
+        menu_name TEXT,
         menu_cost INTEGER,
         menu_quantity INTEGER,
         menu_all_cost INTEGER,
@@ -127,8 +129,6 @@ class DatabaseHelper {
   }
 
   Future<void> _insertInitialData(Database db) async {
-    // JSON 파일에서 데이터를 불러와서 삽입합니다.
-    // 이 예제에서는 JSON 파일이 로컬 파일 시스템에 저장되어 있다고 가정합니다.
     final storeJson = await rootBundle.loadString('assets/store_csvjson.json');
     final menuJson = await rootBundle.loadString('assets/menu_csvjson.json');
 
@@ -158,5 +158,38 @@ class DatabaseHelper {
     return List.generate(maps.length, (i) {
       return Store.fromJson(maps[i]);
     });
+  }
+
+  Future<List<ShoppingItem>> fetchShoppingItems() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.rawQuery('''
+      SELECT s.*, m.menu_name, m.menu_picture_url 
+      FROM shopping s
+      JOIN menu m ON s.menu_id = m.menu_id AND s.store_id = m.store_id
+    ''');
+    return List.generate(maps.length, (i) {
+      return ShoppingItem.fromJson(maps[i]);
+    });
+  }
+
+  Future<void> insertShoppingItem(ShoppingItem item) async {
+    final db = await database;
+    await db.insert('shopping', item.toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  Future<void> updateShoppingItem(ShoppingItem item) async {
+    final db = await database;
+    await db.update('shopping', item.toJson(), where: 'menu_id = ? AND store_id = ?', whereArgs: [item.menuId, item.storeId]);
+  }
+
+  Future<void> deleteShoppingItem(int menuId, int storeId) async {
+    final db = await database;
+    await db.delete('shopping', where: 'menu_id = ? AND store_id = ?', whereArgs: [menuId, storeId]);
+  }
+
+  Future<double> getTotalAmount() async {
+    final db = await database;
+    final result = await db.rawQuery('SELECT SUM(menu_cost * menu_quantity) as total FROM shopping');
+    return result.first['total'] as double? ?? 0.0;
   }
 }
