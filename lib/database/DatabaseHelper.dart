@@ -25,10 +25,10 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, 'menu_store.db');
 
-    // 기존 데이터베이스 삭제
+    // Delete the existing database
     await deleteDatabase(path);
 
-    // 새로운 데이터베이스 생성
+    // Create a new database
     return await openDatabase(
       path,
       version: 1,
@@ -42,7 +42,7 @@ class DatabaseHelper {
   Future<void> _createTables(Database db) async {
     await db.execute('''
       CREATE TABLE user (
-        user_id INTEGER PRIMARY KEY,
+        user_id INTEGER PRIMARY KEY AUTOINCREMENT,
         profile_picture_url TEXT,
         login_id TEXT NOT NULL,
         password TEXT NOT NULL,
@@ -152,6 +152,7 @@ class DatabaseHelper {
 
   Future<void> insertUser(Map<String, dynamic> user) async {
     final db = await database;
+    user.remove('user_id'); // Remove user_id to allow auto-increment
     await db.insert('user', user, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
