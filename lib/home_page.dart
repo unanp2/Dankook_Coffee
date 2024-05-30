@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'shopping/cart_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -110,7 +111,7 @@ class _HomePageState extends State<HomePage> {
                             icon:
                                 Icon(Icons.shopping_cart, color: Colors.black),
                             onPressed: () {
-                              // 쇼핑카트 네비게이션 로직 추가
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => CartPage()));
                             },
                           ),
                         ],
