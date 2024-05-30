@@ -25,7 +25,7 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, 'menu_store.db');
 
-    // Create or open the database
+    // Create a new database
     return await openDatabase(
       path,
       version: 1,
@@ -38,7 +38,7 @@ class DatabaseHelper {
 
   Future<void> _createTables(Database db) async {
     await db.execute('''
-      CREATE TABLE IF NOT EXISTS user (
+      CREATE TABLE user (
         user_id INTEGER PRIMARY KEY AUTOINCREMENT,
         profile_picture_url TEXT,
         login_id TEXT NOT NULL,
@@ -51,7 +51,7 @@ class DatabaseHelper {
     ''');
 
     await db.execute('''
-      CREATE TABLE IF NOT EXISTS store (
+      CREATE TABLE store (
         store_id INTEGER PRIMARY KEY,
         store_picture_url TEXT,
         store_name TEXT NOT NULL,
@@ -64,7 +64,7 @@ class DatabaseHelper {
     ''');
 
     await db.execute('''
-      CREATE TABLE IF NOT EXISTS review (
+      CREATE TABLE review (
         review_id INTEGER PRIMARY KEY,
         user_id INTEGER NOT NULL,
         store_id INTEGER NOT NULL,
@@ -79,7 +79,7 @@ class DatabaseHelper {
     ''');
 
     await db.execute('''
-      CREATE TABLE IF NOT EXISTS menu (
+      CREATE TABLE menu (
         menu_id INTEGER NOT NULL,
         store_id INTEGER NOT NULL,
         menu_picture_url TEXT,
@@ -96,7 +96,7 @@ class DatabaseHelper {
     ''');
 
     await db.execute('''
-      CREATE TABLE IF NOT EXISTS shopping (
+      CREATE TABLE shopping (
         menu_id INTEGER NOT NULL,
         store_id INTEGER NOT NULL,
         menu_picture_url TEXT,
@@ -112,7 +112,7 @@ class DatabaseHelper {
     ''');
 
     await db.execute('''
-      CREATE TABLE IF NOT EXISTS CopyOfreview (
+      CREATE TABLE CopyOfreview (
         review_id INTEGER NOT NULL,
         store_id INTEGER NOT NULL,
         menu_id INTEGER NOT NULL,
@@ -151,6 +151,20 @@ class DatabaseHelper {
     final db = await database;
     user.remove('user_id'); // Remove user_id to allow auto-increment
     await db.insert('user', user, conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+  Future<Map<String, dynamic>?> getUser(int userId) async {
+    final db = await database;
+    List<Map<String, dynamic>> result = await db.query(
+      'user',
+      where: 'user_id = ?',
+      whereArgs: [userId],
+    );
+    if (result.isNotEmpty) {
+      return result.first;
+    } else {
+      return null;
+    }
   }
 
   Future<List<Menu>> fetchMenus() async {

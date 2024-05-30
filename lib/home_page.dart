@@ -1,7 +1,7 @@
+import 'package:flutter/material.dart';
+import '../database/DatabaseHelper.dart';
 import '../login/login_home.dart';
 import '../shopping/cart_page.dart';
-import 'package:flutter/material.dart';
-import 'shopping/cart_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -14,11 +14,13 @@ class _HomePageState extends State<HomePage> {
   late PageController _pageController; // PageView를 제어하기 위한 PageController
   int _currentPage = 1; // 현재 페이지를 저장하는 변수, 시작 페이지를 1로 설정
   final int _numPages = 8; // 총 페이지 수
+  Map<String, dynamic>? _userData; // 사용자 데이터를 저장할 변수
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: _currentPage);
+    _fetchUserData(); // 사용자 데이터를 가져오는 함수 호출
   }
 
   @override
@@ -40,6 +42,15 @@ class _HomePageState extends State<HomePage> {
         _pageController.jumpToPage(1);
       });
     }
+  }
+
+  Future<void> _fetchUserData() async {
+    final dbHelper = DatabaseHelper();
+    // 여기서는 user_id 1을 예로 들었습니다. 실제로는 로그인된 사용자의 ID를 사용해야 합니다.
+    final userData = await dbHelper.getUser(1);
+    setState(() {
+      _userData = userData;
+    });
   }
 
   @override
@@ -111,7 +122,7 @@ class _HomePageState extends State<HomePage> {
                           ),
                           IconButton(
                             icon:
-                                Icon(Icons.shopping_cart, color: Colors.black),
+                            Icon(Icons.shopping_cart, color: Colors.black),
                             onPressed: () {
                               Navigator.push(context, MaterialPageRoute(builder: (context) => CartPage()));
                             },
@@ -196,7 +207,7 @@ class _HomePageState extends State<HomePage> {
                       width: 109,
                       height: 31,
                       child: Text(
-                        '등급 : GOLD',
+                        _userData != null ? '등급 : ${_userData!['ranked']}' : '등급 : 로딩 중...',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.black,
@@ -247,7 +258,7 @@ class _HomePageState extends State<HomePage> {
                       TextSpan(
                         children: [
                           TextSpan(
-                            text: '김단국 ',
+                            text: _userData != null ? '${_userData!['nickname']} ' : '로딩 중... ',
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 32,
@@ -275,7 +286,7 @@ class _HomePageState extends State<HomePage> {
                     left: 190,
                     top: 561,
                     child: Text(
-                      '쿠폰 : 1',
+                      _userData != null ? '쿠폰 : ${_userData!['coupon']}' : '쿠폰 : 로딩 중...',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.black,
@@ -295,7 +306,9 @@ class _HomePageState extends State<HomePage> {
                       height: 147,
                       decoration: BoxDecoration(
                         image: DecorationImage(
-                          image: AssetImage("assets/images/profile_image.png"),
+                          image: _userData != null && _userData!['profile_picture_url'] != ''
+                              ? NetworkImage(_userData!['profile_picture_url']) as ImageProvider
+                              : AssetImage("assets/images/profile_image.png") as ImageProvider,
                           fit: BoxFit.fill,
                         ),
                       ),
