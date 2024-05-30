@@ -1,5 +1,5 @@
-import 'package:dankookcoffee/login/login_home.dart';
-import 'package:dankookcoffee/shopping/cart_page.dart';
+import '../login/login_home.dart';
+import '../shopping/cart_page.dart';
 import 'package:flutter/material.dart';
 import 'shopping/cart_page.dart';
 

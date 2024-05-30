@@ -1,9 +1,9 @@
-import 'package:dankookcoffee/home_page.dart';
-import 'package:dankookcoffee/login/login_page.dart';
-import 'package:dankookcoffee/login/register_page.dart';
-import 'package:dankookcoffee/models/black_button.dart';
-import 'package:dankookcoffee/models/mint_text_button.dart';
-import 'package:dankookcoffee/models/white_button.dart';
+import '../home_page.dart';
+import '../login/login_page.dart';
+import '../login/register_page.dart';
+import '../models/black_button.dart';
+import '../models/mint_text_button.dart';
+import '../models/white_button.dart';
 import 'package:flutter/material.dart';
 
 class LoginHomePage extends StatefulWidget {

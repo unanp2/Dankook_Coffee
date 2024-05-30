@@ -1,10 +1,11 @@
-import 'package:dankookcoffee/home_page.dart';
-import 'package:dankookcoffee/login/fotgot_page.dart';
-import 'package:dankookcoffee/login/register_page.dart';
-import 'package:dankookcoffee/models/input_gray_button.dart';
-import 'package:dankookcoffee/models/login_banner.dart';
-import 'package:dankookcoffee/models/mint_text_button.dart';
 import 'package:flutter/material.dart';
+import '../home_page.dart';
+import '../login/fotgot_page.dart';
+import '../login/register_page.dart';
+import '../database/DatabaseHelper.dart';
+import '../models/input_gray_button.dart';
+import '../models/login_banner.dart';
+import '../models/mint_text_button.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -14,8 +15,36 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  TextEditingController _emailController = TextEditingController();
+  TextEditingController _idController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+  final FocusNode _idFocusNode = FocusNode();
+  final FocusNode _passwordFocusNode = FocusNode();
+  final DatabaseHelper _databaseHelper = DatabaseHelper();
+  String _errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FocusScope.of(context).requestFocus(_idFocusNode);
+    });
+  }
+
+  Future<void> _login() async {
+    String id = _idController.text;
+    String password = _passwordController.text;
+    bool userExists = await _databaseHelper.userExists(id, password);
+    if (userExists) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomePage()),
+      );
+    } else {
+      setState(() {
+        _errorMessage = '아이디 또는 비밀번호가 잘못되었습니다.';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,88 +55,97 @@ class _LoginPageState extends State<LoginPage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Container(
-              width: 400,
-              height: 720,
-              decoration: BoxDecoration(color: Colors.white),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      '단국 커피 로그인',
-                      style: TextStyle(fontWeight: FontWeight.w700, fontSize: 26),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    '단국 커피 로그인',
+                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 26),
+                  ),
+                  SizedBox(height: 60),
+                  TextField(
+                    controller: _idController,
+                    focusNode: _idFocusNode,
+                    decoration: InputDecoration(
+                      hintText: '아이디를 입력하세요',
+                      filled: true,
+                      fillColor: Colors.grey[200],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
-                    SizedBox(
-                      height: 60,
+                  ),
+                  SizedBox(height: 12),
+                  TextField(
+                    controller: _passwordController,
+                    focusNode: _passwordFocusNode,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      hintText: '비밀번호를 입력하세요',
+                      filled: true,
+                      fillColor: Colors.grey[200],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
-                    InputGrayButton(
-                      text_controller: _emailController,
-                      button_text: 'Enter your email',
-                    ),
-                    SizedBox(
-                      height: 12,
-                    ),
-                    InputGrayButton(
-                      text_controller: _passwordController,
-                      button_text: 'Enter your password',
-                    ),
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: 210,
-                        ),
-                        MintTextButton(
-                            button_text: 'Forgot password?',
-                            button_widget: ForgotPage())
-                      ],
-                    ),
-                    SizedBox(height: 10,),
-                    GestureDetector(
-                      onTap: () {
-                        String email = _emailController.text;
-                        String password = _passwordController.text;
-                        bool emailcheck = false;
-                        bool passwordcheck = false;
-                        if (email == 'a@a') {
-                          emailcheck = true;
-                        }
-                        if (password == 'aa') {
-                          passwordcheck = true;
-                        }
-                        if (emailcheck && passwordcheck) {
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (context) => HomePage()));
-                        }
-                      },
-                      child: Container(
-                        height: 56,
-                        width: 360,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            color: Colors.black),
-                        child: Center(
-                          child: Text(
-                            "Login",
-                            style: TextStyle(
-                                fontWeight: FontWeight.w700, color: Colors.white),
+                  ),
+                  Row(
+                    children: [
+                      Spacer(),
+                      MintTextButton(
+                        button_text: '비밀번호를 잊으셨나요?',
+                        button_widget: ForgotPage(),
+                      )
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  GestureDetector(
+                    onTap: _login,
+                    child: Container(
+                      height: 56,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.black,
+                      ),
+                      child: Center(
+                        child: Text(
+                          "로그인",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
                           ),
                         ),
                       ),
                     ),
-                    SizedBox(height: 20,),
-                    LoginBanner(),
-                    SizedBox(height: 160,),
-                    Row(
-                      children: [
-                        SizedBox(width: 50,),
-                        Text("Don't have an account?", style: TextStyle(fontWeight: FontWeight.w700),),
-                        MintTextButton(button_text: 'Register Now', button_widget: RegisterPage()),
-                      ],
-                    )
-                  ],
-                ),
+                  ),
+                  SizedBox(height: 20),
+                  if (_errorMessage.isNotEmpty)
+                    Text(
+                      _errorMessage,
+                      style: TextStyle(color: Colors.red),
+                      textAlign: TextAlign.center,
+                    ),
+                  LoginBanner(),
+                  SizedBox(height: 160),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "계정이 없으신가요?",
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      MintTextButton(
+                        button_text: '지금 가입하기',
+                        button_widget: RegisterPage(),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],

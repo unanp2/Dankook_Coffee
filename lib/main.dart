@@ -1,4 +1,5 @@
-import 'package:dankookcoffee/store/store_info.dart';
+import '../login/login_home.dart';
+import '../store/store_info.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'menu/menu_page.dart';
@@ -6,6 +7,7 @@ import 'shopping/cart_page.dart';
 import 'database/DatabaseHelper.dart';
 import 'shopping/cart_model.dart';
 import 'home_page.dart';
+
 
 void main() {
   runApp(MyApp());
@@ -32,7 +34,8 @@ class MyApp extends StatelessWidget {
         ),
         initialRoute: '/',
         routes: {
-          '/': (context) => HomePage(),
+          '/':(context) => LoginHomePage(),
+          '/homepage': (context) => HomePage(),
           '/store': (context) => StoreInfoPage(),
           '/menu': (context) => MenuPage(),
           CartPage.routeName: (context) => CartPage(),

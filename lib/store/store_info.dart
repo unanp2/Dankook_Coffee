@@ -1,4 +1,4 @@
-import 'package:dankookcoffee/models/appbar.dart';
+import '../models/appbar.dart';
 import 'package:flutter/material.dart';
 
 class StoreInfoPage extends StatelessWidget {

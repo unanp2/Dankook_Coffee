@@ -1,4 +1,4 @@
-import 'package:dankookcoffee/login/login_page.dart';
+import '../login/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 

@@ -110,7 +110,7 @@ class DatabaseHelper {
         menu_eat TEXT,
         PRIMARY KEY(menu_id, store_id),
         FOREIGN KEY(menu_id) REFERENCES menu(menu_id),
-        FOREIGN KEY(store_id) REFERENCES store(store_id)
+        FOREIGN KEY(store_id) REFERENCES menu(store_id)
       )
     ''');
 
@@ -148,6 +148,11 @@ class DatabaseHelper {
     for (var menu in menuData) {
       await db.insert('menu', menu, conflictAlgorithm: ConflictAlgorithm.replace);
     }
+  }
+
+  Future<void> insertUser(Map<String, dynamic> user) async {
+    final db = await database;
+    await db.insert('user', user, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<List<Menu>> fetchMenus() async {
@@ -198,5 +203,15 @@ class DatabaseHelper {
     } else {
       throw Exception('Unexpected value type for total: ${total.runtimeType}');
     }
+  }
+
+  Future<bool> userExists(String username, String email) async {
+    final db = await database;
+    final result = await db.query(
+      'user',
+      where: 'login_id = ? OR email = ?',
+      whereArgs: [username, email],
+    );
+    return result.isNotEmpty;
   }
 }
