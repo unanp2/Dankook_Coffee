@@ -1,4 +1,5 @@
 import 'package:dankookcoffee/login/login_home.dart';
+import 'package:dankookcoffee/shopping/cart_page.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -111,7 +112,7 @@ class _HomePageState extends State<HomePage> {
                             icon:
                                 Icon(Icons.shopping_cart, color: Colors.black),
                             onPressed: () {
-                              // 쇼핑카트 네비게이션 로직 추가
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => CartPage()));
                             },
                           ),
                         ],
