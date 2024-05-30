@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'menu_model.dart';
+import '../menu/menu_model.dart';
 import '../shopping/cart_model.dart';
+import '../shopping/shopping_item.dart';
 import '../shopping/cart_page.dart';
 
 class MenuDetailPage extends StatefulWidget {
@@ -68,7 +69,18 @@ class _MenuDetailPageState extends State<MenuDetailPage> {
                 isFavorite: isFavorite,
                 toggleFavorite: toggleFavorite,
                 onAddToCart: () {
-                  cart.addItem(widget.menu, quantity);
+                  final cartItem = ShoppingItem(
+                    menuId: widget.menu.menuId,
+                    storeId: widget.menu.storeId,
+                    menuPictureUrl: widget.menu.menuPictureUrl,
+                    menuName: widget.menu.menuName,
+                    menuCost: widget.menu.menuCost,
+                    menuQuantity: quantity,
+                    menuAllCost: widget.menu.menuCost * quantity,
+                    menuEat: 'yes',
+                  );
+
+                  cart.addItem(cartItem);
                   Navigator.pushNamed(context, CartPage.routeName);
                 },
               ),

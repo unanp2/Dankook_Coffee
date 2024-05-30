@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'menu_service.dart';
-import 'menu_model.dart';
-import 'menu_detail.dart';
+import '../menu/menu_service.dart';
+import '../menu/menu_model.dart';
+import '../menu/menu_detail.dart';
 import '../shopping/cart_model.dart';
 import '../shopping/cart_page.dart';
+import '../shopping/shopping_item.dart';
+import '../database/DatabaseHelper.dart';
 
 class MenuPage extends StatefulWidget {
   @override
@@ -13,18 +15,17 @@ class MenuPage extends StatefulWidget {
 }
 
 class _MenuPageState extends State<MenuPage> with SingleTickerProviderStateMixin {
-  late Future<List<Menu>> futureMenu; // 메뉴 데이터를 불러오기 위한 Future 객체
-  List<Menu> filteredMenu = []; // 필터링된 메뉴 리스트
-  String searchQuery = ''; // 검색어
-  int selectedCategoryId = 0; // 선택된 카테고리 ID
-  late TabController _tabController; // TabBar 컨트롤러
+  late Future<List<Menu>> futureMenu;
+  List<Menu> filteredMenu = [];
+  String searchQuery = '';
+  int selectedCategoryId = 0;
+  late TabController _tabController;
+  late MenuService menuService;
 
   @override
   void initState() {
     super.initState();
-    // TabController 초기화, 4개의 탭
     _tabController = TabController(length: 4, vsync: this);
-    // 탭 변경 시 카테고리 ID와 필터링된 메뉴 업데이트
     _tabController.addListener(() {
       setState(() {
         selectedCategoryId = _tabController.index;
@@ -32,8 +33,8 @@ class _MenuPageState extends State<MenuPage> with SingleTickerProviderStateMixin
       filterMenu();
     });
 
-    // 메뉴 데이터 불러오기
-    futureMenu = MenuService().fetchMenu();
+    menuService = MenuService(Provider.of<DatabaseHelper>(context, listen: false));
+    futureMenu = menuService.fetchMenu();
     futureMenu.then((menu) {
       setState(() {
         filteredMenu = menu;
@@ -41,7 +42,6 @@ class _MenuPageState extends State<MenuPage> with SingleTickerProviderStateMixin
     });
   }
 
-  // 메뉴 필터링 함수
   void filterMenu() {
     futureMenu.then((menuList) {
       setState(() {
@@ -55,7 +55,6 @@ class _MenuPageState extends State<MenuPage> with SingleTickerProviderStateMixin
 
   @override
   void dispose() {
-    // TabController 해제
     _tabController.dispose();
     super.dispose();
   }
@@ -71,13 +70,13 @@ class _MenuPageState extends State<MenuPage> with SingleTickerProviderStateMixin
           IconButton(
             icon: Icon(Icons.home),
             onPressed: () {
-              Navigator.pushNamed(context, '/'); // 홈 화면으로 이동
+              Navigator.pushNamed(context, '/');
             },
           ),
           IconButton(
             icon: Icon(Icons.shopping_cart),
             onPressed: () {
-              Navigator.pushNamed(context, CartPage.routeName); // 장바구니 화면으로 이동
+              Navigator.pushNamed(context, CartPage.routeName);
             },
           ),
         ],
@@ -85,7 +84,6 @@ class _MenuPageState extends State<MenuPage> with SingleTickerProviderStateMixin
           preferredSize: Size.fromHeight(100.0),
           child: Column(
             children: [
-              // 매장명 표시
               Container(
                 alignment: Alignment.centerLeft,
                 padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -98,7 +96,6 @@ class _MenuPageState extends State<MenuPage> with SingleTickerProviderStateMixin
                   ),
                 ),
               ),
-              // TabBar 추가
               TabBar(
                 controller: _tabController,
                 tabs: [
@@ -116,7 +113,6 @@ class _MenuPageState extends State<MenuPage> with SingleTickerProviderStateMixin
         color: Colors.white,
         child: Column(
           children: [
-            // 검색창
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextField(
@@ -133,19 +129,18 @@ class _MenuPageState extends State<MenuPage> with SingleTickerProviderStateMixin
                   setState(() {
                     searchQuery = value;
                   });
-                  filterMenu(); // 검색어 변경 시 메뉴 필터링
+                  filterMenu();
                 },
               ),
             ),
-            // 필터링된 메뉴 표시
             Expanded(
               child: FutureBuilder<List<Menu>>(
                 future: futureMenu,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator()); // 로딩 중 표시
+                    return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}')); // 에러 메시지 표시
+                    return Center(child: Text('Error: ${snapshot.error}'));
                   } else {
                     final menus = filteredMenu.where((menu) => selectedCategoryId == 0 || menu.menuCategoryId == selectedCategoryId).toList();
                     return GridView.builder(
@@ -164,11 +159,11 @@ class _MenuPageState extends State<MenuPage> with SingleTickerProviderStateMixin
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => MenuDetailPage(menu: menu), // 메뉴 상세 페이지로 이동
+                                builder: (context) => MenuDetailPage(menu: menu),
                               ),
                             );
                           },
-                          child: MenuItem(menu: menu), // 메뉴 아이템 위젯
+                          child: MenuItem(menu: menu),
                         );
                       },
                     );
@@ -198,7 +193,6 @@ class MenuItem extends StatelessWidget {
         children: [
           Stack(
             children: [
-              // 메뉴 이미지
               ClipRRect(
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(10),
@@ -209,22 +203,33 @@ class MenuItem extends StatelessWidget {
                   width: double.infinity,
                   height: 120,
                   fit: BoxFit.cover,
-                  placeholder: (context, url) => const Center(child: CircularProgressIndicator()), // 로딩 중 표시
+                  placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
                   errorWidget: (context, url, error) => Image.asset(
                     'assets/images/placeholder.png',
                     width: double.infinity,
                     height: 120,
                     fit: BoxFit.cover,
-                  ), // 에러 시 기본 이미지 표시
+                  ),
                 ),
               ),
-              // 장바구니 아이콘
               Positioned(
                 bottom: 8,
                 right: 8,
                 child: GestureDetector(
                   onTap: () {
-                    Provider.of<Cart>(context, listen: false).addItem(menu, 1); // 장바구니에 메뉴 추가
+                    final cartItem = ShoppingItem(
+                      menuId: menu.menuId,
+                      storeId: menu.storeId,
+                      menuPictureUrl: menu.menuPictureUrl,
+                      menuName: menu.menuName,
+                      menuCost: menu.menuCost,
+                      menuQuantity: 1,
+                      menuAllCost: menu.menuCost,
+                      menuEat: 'yes',
+                    );
+
+                    Provider.of<Cart>(context, listen: false).addItem(cartItem);
+
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('${menu.menuName} 가 장바구니에 추가되었습니다.'),
@@ -256,7 +261,6 @@ class MenuItem extends StatelessWidget {
               ),
             ],
           ),
-          // 메뉴 이름과 가격 표시
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(

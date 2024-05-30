@@ -1,11 +1,13 @@
-import 'dart:convert';
-import 'package:flutter/services.dart' show rootBundle;
-import 'menu_model.dart';
+
+import '../database/DatabaseHelper.dart';
+import '../menu/menu_model.dart';
 
 class MenuService {
+  final DatabaseHelper dbHelper;
+
+  MenuService(this.dbHelper);
+
   Future<List<Menu>> fetchMenu() async {
-    final String response = await rootBundle.loadString('assets/menu_csvjson.json');
-    final List<dynamic> data = json.decode(response);
-    return data.map((json) => Menu.fromJson(json)).toList();
+    return await dbHelper.fetchMenus();
   }
 }

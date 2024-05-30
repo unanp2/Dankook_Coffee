@@ -1,53 +1,55 @@
-import 'package:flutter/foundation.dart';
-import '../menu/menu_model.dart';
-
-class CartItem {
-  final Menu menu;
-  int quantity;
-
-  CartItem({required this.menu, this.quantity = 1});
-}
+import 'package:flutter/material.dart';
+import '../database/DatabaseHelper.dart';
+import '../shopping/shopping_item.dart';
 
 class Cart with ChangeNotifier {
-  List<CartItem> _items = [];
+  List<ShoppingItem> _items = [];
+  double _totalAmount = 0.0;
+  late DatabaseHelper _dbHelper;
 
-  List<CartItem> get items => _items;
-
-  double get totalAmount {
-    return _items.fold(0.0, (sum, item) => sum + (item.menu.menuCost * item.quantity));
+  Cart(this._dbHelper) {
+    loadCartItems();
   }
 
-  void addItem(Menu menu, int quantity) {
-    final index = _items.indexWhere((item) => item.menu.menuId == menu.menuId);
-    if (index >= 0) {
-      _items[index].quantity += quantity;
+  List<ShoppingItem> get items => _items;
+
+  double get totalAmount => _totalAmount;
+
+  Future<void> loadCartItems() async {
+    _items = await _dbHelper.fetchShoppingItems();
+    _totalAmount = await _dbHelper.getTotalAmount();
+    notifyListeners();
+  }
+
+  Future<void> addItem(ShoppingItem item) async {
+    await _dbHelper.insertShoppingItem(item);
+    await loadCartItems();
+  }
+
+  Future<void> incrementItem(ShoppingItem item) async {
+    final updatedItem = item.copyWith(
+      menuQuantity: item.menuQuantity + 1,
+      menuAllCost: item.menuCost * (item.menuQuantity + 1),
+    );
+    await _dbHelper.updateShoppingItem(updatedItem);
+    await loadCartItems();
+  }
+
+  Future<void> decrementItem(ShoppingItem item) async {
+    if (item.menuQuantity > 1) {
+      final updatedItem = item.copyWith(
+        menuQuantity: item.menuQuantity - 1,
+        menuAllCost: item.menuCost * (item.menuQuantity - 1),
+      );
+      await _dbHelper.updateShoppingItem(updatedItem);
     } else {
-      _items.add(CartItem(menu: menu, quantity: quantity));
+      await _dbHelper.deleteShoppingItem(item.menuId, item.storeId);
     }
-    notifyListeners();
+    await loadCartItems();
   }
 
-  void removeItem(Menu menu) {
-    _items.removeWhere((item) => item.menu.menuId == menu.menuId);
-    notifyListeners();
-  }
-
-  void incrementItem(Menu menu) {
-    final index = _items.indexWhere((item) => item.menu.menuId == menu.menuId);
-    if (index >= 0) {
-      _items[index].quantity++;
-      notifyListeners();
-    }
-  }
-
-  void decrementItem(Menu menu) {
-    final index = _items.indexWhere((item) => item.menu.menuId == menu.menuId);
-    if (index >= 0) {
-      _items[index].quantity--;
-      if (_items[index].quantity == 0) {
-        _items.removeAt(index);
-      }
-      notifyListeners();
-    }
+  Future<void> removeItem(ShoppingItem item) async {
+    await _dbHelper.deleteShoppingItem(item.menuId, item.storeId);
+    await loadCartItems();
   }
 }
