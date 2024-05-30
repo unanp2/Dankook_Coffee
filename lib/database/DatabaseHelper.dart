@@ -25,10 +25,7 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, 'menu_store.db');
 
-    // Delete the existing database
-    await deleteDatabase(path);
-
-    // Create a new database
+    // Create or open the database
     return await openDatabase(
       path,
       version: 1,
@@ -41,7 +38,7 @@ class DatabaseHelper {
 
   Future<void> _createTables(Database db) async {
     await db.execute('''
-      CREATE TABLE user (
+      CREATE TABLE IF NOT EXISTS user (
         user_id INTEGER PRIMARY KEY AUTOINCREMENT,
         profile_picture_url TEXT,
         login_id TEXT NOT NULL,
@@ -54,7 +51,7 @@ class DatabaseHelper {
     ''');
 
     await db.execute('''
-      CREATE TABLE store (
+      CREATE TABLE IF NOT EXISTS store (
         store_id INTEGER PRIMARY KEY,
         store_picture_url TEXT,
         store_name TEXT NOT NULL,
@@ -67,7 +64,7 @@ class DatabaseHelper {
     ''');
 
     await db.execute('''
-      CREATE TABLE review (
+      CREATE TABLE IF NOT EXISTS review (
         review_id INTEGER PRIMARY KEY,
         user_id INTEGER NOT NULL,
         store_id INTEGER NOT NULL,
@@ -82,7 +79,7 @@ class DatabaseHelper {
     ''');
 
     await db.execute('''
-      CREATE TABLE menu (
+      CREATE TABLE IF NOT EXISTS menu (
         menu_id INTEGER NOT NULL,
         store_id INTEGER NOT NULL,
         menu_picture_url TEXT,
@@ -99,7 +96,7 @@ class DatabaseHelper {
     ''');
 
     await db.execute('''
-      CREATE TABLE shopping (
+      CREATE TABLE IF NOT EXISTS shopping (
         menu_id INTEGER NOT NULL,
         store_id INTEGER NOT NULL,
         menu_picture_url TEXT,
@@ -115,7 +112,7 @@ class DatabaseHelper {
     ''');
 
     await db.execute('''
-      CREATE TABLE CopyOfreview (
+      CREATE TABLE IF NOT EXISTS CopyOfreview (
         review_id INTEGER NOT NULL,
         store_id INTEGER NOT NULL,
         menu_id INTEGER NOT NULL,
