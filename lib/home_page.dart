@@ -8,7 +8,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final PageController _pageController = PageController(); // PageView를 제어하기 위한 PageController
+  final PageController _pageController =
+      PageController(); // PageView를 제어하기 위한 PageController
   int _currentPage = 0; // 현재 페이지를 저장하는 변수
   final int _numPages = 8; // 총 페이지 수
 
@@ -59,17 +60,40 @@ class _HomePageState extends State<HomePage> {
                               // 네비게이션 로직 추가
                             },
                           ),
+                          SizedBox(width: 10,),
                           Text(
-                            'DANKOOK COFFEE',
+                            'DANKOOK',
                             style: TextStyle(
                               color: Colors.black,
                               fontSize: 20,
                               fontFamily: 'Black Han Sans',
-                              fontWeight: FontWeight.w400,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
+                          Container(
+                            width: 30,
+                            height: 30,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: AssetImage(
+                                    'assets/images/logo_image.png'), // 경로 수정
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            'COFFEE',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 20,
+                              fontFamily: 'Black Han Sans',
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          SizedBox(width: 10,),
                           IconButton(
-                            icon: Icon(Icons.shopping_cart, color: Colors.black),
+                            icon:
+                                Icon(Icons.shopping_cart, color: Colors.black),
                             onPressed: () {
                               // 쇼핑카트 네비게이션 로직 추가
                             },
@@ -90,9 +114,12 @@ class _HomePageState extends State<HomePage> {
                         onPageChanged: _onPageChanged, // 페이지 변경 시 호출될 콜백 함수
                         children: List.generate(_numPages + 1, (index) {
                           if (index == _numPages) {
-                            return Image.asset("assets/images/ad_image0.png", fit: BoxFit.fill);
+                            return Image.asset("assets/images/ad_image0.png",
+                                fit: BoxFit.fill);
                           } else {
-                            return Image.asset("assets/images/ad_image$index.png", fit: BoxFit.fill);
+                            return Image.asset(
+                                "assets/images/ad_image$index.png",
+                                fit: BoxFit.fill);
                           }
                         }),
                       ),
@@ -112,7 +139,9 @@ class _HomePageState extends State<HomePage> {
                           height: _currentPage == index ? 12 : 8,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: _currentPage == index ? Colors.black : Colors.grey,
+                            color: _currentPage == index
+                                ? Colors.black
+                                : Colors.grey,
                           ),
                         );
                       }),
@@ -166,10 +195,23 @@ class _HomePageState extends State<HomePage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _buildNavigationIcon(context, 'assets/icons/coffee-shop 1.png', '가게 정보', '/store-info'),
-                          _buildNavigationIcon(context, 'assets/icons/menu2 1.png', '메뉴', '/menu'),
-                          _buildNavigationIcon(context, 'assets/icons/credit-card 1.png', '리뷰', '/review'),
-                          _buildNavigationIcon(context, 'assets/icons/cup 1.png', '커피 추천', '/coffee-recommend'),
+                          _buildNavigationIcon(
+                              context,
+                              'assets/icons/coffee-shop 1.png',
+                              '가게 정보',
+                              '/store-info'),
+                          _buildNavigationIcon(context,
+                              'assets/icons/menu2 1.png', '메뉴', '/menu'),
+                          _buildNavigationIcon(
+                              context,
+                              'assets/icons/credit-card 1.png',
+                              '리뷰',
+                              '/review'),
+                          _buildNavigationIcon(
+                              context,
+                              'assets/icons/cup 1.png',
+                              '커피 추천',
+                              '/coffee-recommend'),
                         ],
                       ),
                     ),
@@ -243,7 +285,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   // 네비게이션 아이콘 생성 메서드
-  Widget _buildNavigationIcon(BuildContext context, String iconPath, String text, String route) {
+  Widget _buildNavigationIcon(
+      BuildContext context, String iconPath, String text, String route) {
     return Column(
       children: [
         GestureDetector(
