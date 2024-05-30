@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../menu/menu_service.dart';
 import '../menu/menu_model.dart';
-import '../menu/menu_detail.dart';
+import 'menu_detail.dart';
 import '../shopping/cart_model.dart';
 import '../shopping/cart_page.dart';
 import '../shopping/shopping_item.dart';

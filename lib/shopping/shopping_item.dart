@@ -4,7 +4,7 @@ class ShoppingItem {
   final String menuPictureUrl;
   final String menuName;
   final int menuCost;
-  final int menuQuantity;
+  int menuQuantity;
   final int menuAllCost;
   final String menuEat;
 

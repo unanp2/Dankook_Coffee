@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../database/DatabaseHelper.dart';
-import '../shopping/shopping_item.dart';
+import 'shopping_item.dart';
 
 class Cart with ChangeNotifier {
   List<ShoppingItem> _items = [];
-  double _totalAmount = 0.0;
+  int _totalAmount = 0;
   late DatabaseHelper _dbHelper;
 
   Cart(this._dbHelper) {
@@ -13,7 +13,7 @@ class Cart with ChangeNotifier {
 
   List<ShoppingItem> get items => _items;
 
-  double get totalAmount => _totalAmount;
+  int get totalAmount => _totalAmount;
 
   Future<void> loadCartItems() async {
     _items = await _dbHelper.fetchShoppingItems();
@@ -22,7 +22,22 @@ class Cart with ChangeNotifier {
   }
 
   Future<void> addItem(ShoppingItem item) async {
-    await _dbHelper.insertShoppingItem(item);
+    // 기존 항목이 있는지 확인
+    final existingItemIndex = _items.indexWhere((element) => element.menuId == item.menuId && element.storeId == item.storeId);
+
+    if (existingItemIndex >= 0) {
+      // 기존 항목이 있으면 수량 증가
+      final existingItem = _items[existingItemIndex];
+      final updatedItem = existingItem.copyWith(
+        menuQuantity: existingItem.menuQuantity + item.menuQuantity,
+        menuAllCost: existingItem.menuCost * (existingItem.menuQuantity + item.menuQuantity),
+      );
+      await _dbHelper.updateShoppingItem(updatedItem);
+    } else {
+      // 새로운 항목이면 추가
+      await _dbHelper.insertShoppingItem(item);
+    }
+
     await loadCartItems();
   }
 

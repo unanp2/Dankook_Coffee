@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../shopping/cart_model.dart';
+import 'cart_model.dart';
 
 class CartPage extends StatelessWidget {
   static const routeName = '/cart';
@@ -105,12 +105,12 @@ class CartPage extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: TextField(
               decoration: InputDecoration(
-                hintText: 'Enter your promo code',
+                hintText: 'Enter your promotion code',
                 hintStyle: TextStyle(color: Colors.black),
                 suffixIcon: IconButton(
                   icon: Icon(Icons.arrow_forward, color: Colors.black),
                   onPressed: () {
-                    // 프로모 코드 기능 구현
+                    // 프로모션 코드 기능 구현
                   },
                 ),
                 border: OutlineInputBorder(
@@ -133,7 +133,7 @@ class CartPage extends StatelessWidget {
                       style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
                     ),
                     Text(
-                      '${cart.totalAmount} 원',
+                      '${cart.totalAmount.toInt()} 원',
                       style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
                     ),
                   ],

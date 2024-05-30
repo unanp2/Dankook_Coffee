@@ -2,9 +2,8 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
-import '../menu/menu_model.dart';
-import '../store/store_model.dart';
 import '../shopping/shopping_item.dart';
+import '../menu/menu_model.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -26,6 +25,10 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, 'menu_store.db');
 
+    // 기존 데이터베이스 삭제
+    await deleteDatabase(path);
+
+    // 새로운 데이터베이스 생성
     return await openDatabase(
       path,
       version: 1,
@@ -64,9 +67,24 @@ class DatabaseHelper {
     ''');
 
     await db.execute('''
+      CREATE TABLE review (
+        review_id INTEGER PRIMARY KEY,
+        user_id INTEGER NOT NULL,
+        store_id INTEGER NOT NULL,
+        store_picture_url TEXT NOT NULL,
+        rating INTEGER NOT NULL,
+        content TEXT,
+        created_date TIMESTAMP NOT NULL,
+        modified_date TIMESTAMP NOT NULL,
+        FOREIGN KEY(user_id) REFERENCES user(user_id),
+        FOREIGN KEY(store_id) REFERENCES store(store_id)
+      )
+    ''');
+
+    await db.execute('''
       CREATE TABLE menu (
-        menu_id INTEGER,
-        store_id INTEGER,
+        menu_id INTEGER NOT NULL,
+        store_id INTEGER NOT NULL,
         menu_picture_url TEXT,
         menu_name TEXT,
         menu_rating_average REAL NOT NULL,
@@ -81,23 +99,9 @@ class DatabaseHelper {
     ''');
 
     await db.execute('''
-      CREATE TABLE review (
-        review_id INTEGER PRIMARY KEY,
-        user_id INTEGER NOT NULL,
-        store_id INTEGER NOT NULL,
-        rating INTEGER NOT NULL,
-        content TEXT,
-        created_date TIMESTAMP NOT NULL,
-        modified_date TIMESTAMP NOT NULL,
-        FOREIGN KEY(user_id) REFERENCES user(user_id),
-        FOREIGN KEY(store_id) REFERENCES store(store_id)
-      )
-    ''');
-
-    await db.execute('''
       CREATE TABLE shopping (
-        menu_id INTEGER,
-        store_id INTEGER,
+        menu_id INTEGER NOT NULL,
+        store_id INTEGER NOT NULL,
         menu_picture_url TEXT,
         menu_name TEXT,
         menu_cost INTEGER,
@@ -106,22 +110,24 @@ class DatabaseHelper {
         menu_eat TEXT,
         PRIMARY KEY(menu_id, store_id),
         FOREIGN KEY(menu_id) REFERENCES menu(menu_id),
-        FOREIGN KEY(store_id) REFERENCES menu(store_id)
+        FOREIGN KEY(store_id) REFERENCES store(store_id)
       )
     ''');
 
     await db.execute('''
-      CREATE TABLE copy_of_review (
-        review_id INTEGER,
-        store_id INTEGER,
-        menu_id INTEGER,
-        user_id INTEGER,
+      CREATE TABLE CopyOfreview (
+        review_id INTEGER NOT NULL,
+        store_id INTEGER NOT NULL,
+        menu_id INTEGER NOT NULL,
+        user_id INTEGER NOT NULL,
+        menu_picture_url TEXT NOT NULL,
+        menu_name TEXT NOT NULL,
         rating INTEGER NOT NULL,
         content TEXT,
         created_date TIMESTAMP NOT NULL,
         modified_date TIMESTAMP NOT NULL,
         PRIMARY KEY(review_id, store_id, menu_id),
-        FOREIGN KEY(store_id) REFERENCES menu(store_id),
+        FOREIGN KEY(store_id) REFERENCES store(store_id),
         FOREIGN KEY(menu_id) REFERENCES menu(menu_id),
         FOREIGN KEY(user_id) REFERENCES user(user_id)
       )
@@ -152,14 +158,6 @@ class DatabaseHelper {
     });
   }
 
-  Future<List<Store>> fetchStores() async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query('store');
-    return List.generate(maps.length, (i) {
-      return Store.fromJson(maps[i]);
-    });
-  }
-
   Future<List<ShoppingItem>> fetchShoppingItems() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.rawQuery('''
@@ -187,9 +185,18 @@ class DatabaseHelper {
     await db.delete('shopping', where: 'menu_id = ? AND store_id = ?', whereArgs: [menuId, storeId]);
   }
 
-  Future<double> getTotalAmount() async {
+  Future<int> getTotalAmount() async {
     final db = await database;
     final result = await db.rawQuery('SELECT SUM(menu_cost * menu_quantity) as total FROM shopping');
-    return result.first['total'] as double? ?? 0.0;
+    var total = result.first['total'];
+    if (total == null) {
+      return 0;
+    } else if (total is int) {
+      return total;
+    } else if (total is double) {
+      return total.toInt();
+    } else {
+      throw Exception('Unexpected value type for total: ${total.runtimeType}');
+    }
   }
 }
