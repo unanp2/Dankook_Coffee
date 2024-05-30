@@ -22,14 +22,6 @@ class _LoginPageState extends State<LoginPage> {
   final DatabaseHelper _databaseHelper = DatabaseHelper();
   String _errorMessage = '';
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      FocusScope.of(context).requestFocus(_idFocusNode);
-    });
-  }
-
   Future<void> _login() async {
     String id = _idController.text;
     String password = _passwordController.text;

@@ -26,14 +26,6 @@ class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
   String _errorMessage = '';
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      FocusScope.of(context).requestFocus(_userIdFocusNode);
-    });
-  }
-
   Future<void> _register() async {
     if (_formKey.currentState?.validate() ?? false) {
       String userId = _userIdController.text;
