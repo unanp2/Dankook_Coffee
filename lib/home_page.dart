@@ -88,8 +88,12 @@ class _HomePageState extends State<HomePage> {
                       child: PageView(
                         controller: _pageController, // PageView를 제어하기 위한 컨트롤러
                         onPageChanged: _onPageChanged, // 페이지 변경 시 호출될 콜백 함수
-                        children: List.generate(_numPages, (index) {
-                          return Image.asset("assets/images/ad_image$index.png", fit: BoxFit.fill);
+                        children: List.generate(_numPages + 1, (index) {
+                          if (index == _numPages) {
+                            return Image.asset("assets/images/ad_image0.png", fit: BoxFit.fill);
+                          } else {
+                            return Image.asset("assets/images/ad_image$index.png", fit: BoxFit.fill);
+                          }
                         }),
                       ),
                     ),
@@ -148,7 +152,6 @@ class _HomePageState extends State<HomePage> {
                           fontSize: 20,
                           fontFamily: 'Jua',
                           fontWeight: FontWeight.w400,
-                          decoration: TextDecoration.none, // 노란색 줄 제거
                         ),
                       ),
                     ),
@@ -185,7 +188,6 @@ class _HomePageState extends State<HomePage> {
                               fontSize: 32,
                               fontFamily: 'Goldman',
                               fontWeight: FontWeight.w700,
-                              decoration: TextDecoration.none, // 노란색 줄 제거
                             ),
                           ),
                           TextSpan(
@@ -195,7 +197,6 @@ class _HomePageState extends State<HomePage> {
                               fontSize: 20,
                               fontFamily: 'Goldman',
                               fontWeight: FontWeight.w700,
-                              decoration: TextDecoration.none, // 노란색 줄 제거
                             ),
                           ),
                         ],
@@ -214,7 +215,6 @@ class _HomePageState extends State<HomePage> {
                         fontSize: 20,
                         fontFamily: 'Jua',
                         fontWeight: FontWeight.w400,
-                        decoration: TextDecoration.none, // 노란색 줄 제거
                       ),
                     ),
                   ),
@@ -268,7 +268,6 @@ class _HomePageState extends State<HomePage> {
             fontSize: 12,
             fontFamily: 'Sunflower',
             fontWeight: FontWeight.w500,
-            decoration: TextDecoration.none, // 노란색 줄 제거
           ),
         ),
       ],
