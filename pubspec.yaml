@@ -25,7 +25,6 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/
+    - assets/images/
     - assets/icons/
-    - assets/database/
-    - assets/menucsvjson.json
-    - assets/store_csvjson.json

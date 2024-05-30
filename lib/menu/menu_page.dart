@@ -12,15 +12,27 @@ class MenuPage extends StatefulWidget {
   _MenuPageState createState() => _MenuPageState();
 }
 
-class _MenuPageState extends State<MenuPage> {
-  late Future<List<Menu>> futureMenu;
-  List<Menu> filteredMenu = [];
-  String searchQuery = '';
-  int selectedCategoryId = 0; // 기본 카테고리 ID
+class _MenuPageState extends State<MenuPage> with SingleTickerProviderStateMixin {
+  late Future<List<Menu>> futureMenu; // 메뉴 데이터를 불러오기 위한 Future 객체
+  List<Menu> filteredMenu = []; // 필터링된 메뉴 리스트
+  String searchQuery = ''; // 검색어
+  int selectedCategoryId = 0; // 선택된 카테고리 ID
+  late TabController _tabController; // TabBar 컨트롤러
 
   @override
   void initState() {
     super.initState();
+    // TabController 초기화, 4개의 탭
+    _tabController = TabController(length: 4, vsync: this);
+    // 탭 변경 시 카테고리 ID와 필터링된 메뉴 업데이트
+    _tabController.addListener(() {
+      setState(() {
+        selectedCategoryId = _tabController.index;
+      });
+      filterMenu();
+    });
+
+    // 메뉴 데이터 불러오기
     futureMenu = MenuService().fetchMenu();
     futureMenu.then((menu) {
       setState(() {
@@ -29,6 +41,7 @@ class _MenuPageState extends State<MenuPage> {
     });
   }
 
+  // 메뉴 필터링 함수
   void filterMenu() {
     futureMenu.then((menuList) {
       setState(() {
@@ -38,6 +51,13 @@ class _MenuPageState extends State<MenuPage> {
         }).toList();
       });
     });
+  }
+
+  @override
+  void dispose() {
+    // TabController 해제
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
@@ -51,29 +71,44 @@ class _MenuPageState extends State<MenuPage> {
           IconButton(
             icon: Icon(Icons.home),
             onPressed: () {
-              Navigator.pushNamed(context, '/');
+              Navigator.pushNamed(context, '/'); // 홈 화면으로 이동
             },
           ),
           IconButton(
             icon: Icon(Icons.shopping_cart),
             onPressed: () {
-              Navigator.pushNamed(context, CartPage.routeName);
+              Navigator.pushNamed(context, CartPage.routeName); // 장바구니 화면으로 이동
             },
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(50.0),
-          child: Container(
-            alignment: Alignment.centerLeft,
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text(
-              '죽전단국대점',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 18.0,
-                fontWeight: FontWeight.bold,
+          preferredSize: Size.fromHeight(100.0),
+          child: Column(
+            children: [
+              // 매장명 표시
+              Container(
+                alignment: Alignment.centerLeft,
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text(
+                  '죽전단국대점',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-            ),
+              // TabBar 추가
+              TabBar(
+                controller: _tabController,
+                tabs: [
+                  Tab(icon: Icon(Icons.list, color: Colors.black), text: '전체'),
+                  Tab(icon: Icon(Icons.star, color: Colors.black), text: '추천'),
+                  Tab(icon: Icon(Icons.local_drink, color: Colors.black), text: '음료'),
+                  Tab(icon: Icon(Icons.fastfood, color: Colors.black), text: '푸드'),
+                ],
+              ),
+            ],
           ),
         ),
       ),
@@ -81,14 +116,15 @@ class _MenuPageState extends State<MenuPage> {
         color: Colors.white,
         child: Column(
           children: [
+            // 검색창
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextField(
-                style: TextStyle(color: Colors.black), // 검색 글씨를 검은색으로 설정
+                style: TextStyle(color: Colors.black),
                 decoration: InputDecoration(
                   hintText: '검색',
-                  hintStyle: TextStyle(color: Colors.black), // 힌트 글씨를 검은색으로 설정
-                  prefixIcon: Icon(Icons.search, color: Colors.black), // 아이콘 색상 설정
+                  hintStyle: TextStyle(color: Colors.black),
+                  prefixIcon: Icon(Icons.search, color: Colors.black),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -97,26 +133,19 @@ class _MenuPageState extends State<MenuPage> {
                   setState(() {
                     searchQuery = value;
                   });
-                  filterMenu();
+                  filterMenu(); // 검색어 변경 시 메뉴 필터링
                 },
               ),
             ),
-            CategorySelector(
-              onCategorySelected: (id) {
-                setState(() {
-                  selectedCategoryId = id;
-                });
-                filterMenu();
-              },
-            ),
+            // 필터링된 메뉴 표시
             Expanded(
               child: FutureBuilder<List<Menu>>(
                 future: futureMenu,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator()); // 로딩 중 표시
                   } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
+                    return Center(child: Text('Error: ${snapshot.error}')); // 에러 메시지 표시
                   } else {
                     final menus = filteredMenu.where((menu) => selectedCategoryId == 0 || menu.menuCategoryId == selectedCategoryId).toList();
                     return GridView.builder(
@@ -135,11 +164,11 @@ class _MenuPageState extends State<MenuPage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => MenuDetailPage(menu: menu),
+                                builder: (context) => MenuDetailPage(menu: menu), // 메뉴 상세 페이지로 이동
                               ),
                             );
                           },
-                          child: MenuItem(menu: menu),
+                          child: MenuItem(menu: menu), // 메뉴 아이템 위젯
                         );
                       },
                     );
@@ -149,73 +178,6 @@ class _MenuPageState extends State<MenuPage> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class CategorySelector extends StatelessWidget {
-  final Function(int) onCategorySelected;
-
-  const CategorySelector({required this.onCategorySelected});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 70,
-      color: Colors.white,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          CategoryButton(
-              categoryId: 0,
-              categoryName: '전체',
-              icon: Icons.list,
-              onCategorySelected: onCategorySelected),
-          CategoryButton(
-              categoryId: 1,
-              categoryName: '추천',
-              icon: Icons.star,
-              onCategorySelected: onCategorySelected),
-          CategoryButton(
-              categoryId: 2,
-              categoryName: '음료',
-              icon: Icons.local_drink,
-              onCategorySelected: onCategorySelected),
-          CategoryButton(
-              categoryId: 3,
-              categoryName: '푸드',
-              icon: Icons.fastfood,
-              onCategorySelected: onCategorySelected),
-        ],
-      ),
-    );
-  }
-}
-
-class CategoryButton extends StatelessWidget {
-  final int categoryId;
-  final String categoryName;
-  final IconData icon;
-  final Function(int) onCategorySelected;
-
-  const CategoryButton(
-      {required this.categoryId,
-        required this.categoryName,
-        required this.icon,
-        required this.onCategorySelected});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => onCategorySelected(categoryId),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 24, color: Colors.black),
-          const SizedBox(height: 4),
-          Text(categoryName, style: const TextStyle(fontSize: 18, color: Colors.black)),
-        ],
       ),
     );
   }
@@ -236,6 +198,7 @@ class MenuItem extends StatelessWidget {
         children: [
           Stack(
             children: [
+              // 메뉴 이미지
               ClipRRect(
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(10),
@@ -246,21 +209,22 @@ class MenuItem extends StatelessWidget {
                   width: double.infinity,
                   height: 120,
                   fit: BoxFit.cover,
-                  placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
+                  placeholder: (context, url) => const Center(child: CircularProgressIndicator()), // 로딩 중 표시
                   errorWidget: (context, url, error) => Image.asset(
                     'assets/images/placeholder.png',
                     width: double.infinity,
                     height: 120,
                     fit: BoxFit.cover,
-                  ),
+                  ), // 에러 시 기본 이미지 표시
                 ),
               ),
+              // 장바구니 아이콘
               Positioned(
                 bottom: 8,
                 right: 8,
                 child: GestureDetector(
                   onTap: () {
-                    Provider.of<Cart>(context, listen: false).addItem(menu, 1);
+                    Provider.of<Cart>(context, listen: false).addItem(menu, 1); // 장바구니에 메뉴 추가
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('${menu.menuName} 가 장바구니에 추가되었습니다.'),
@@ -292,6 +256,7 @@ class MenuItem extends StatelessWidget {
               ),
             ],
           ),
+          // 메뉴 이름과 가격 표시
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
@@ -304,7 +269,7 @@ class MenuItem extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   '${menu.menuCost} 원',
-                  style: const TextStyle(fontSize: 14, color: Colors.black), // Changed to black
+                  style: const TextStyle(fontSize: 14, color: Colors.black),
                 ),
               ],
             ),

@@ -4,7 +4,7 @@ import 'menu_model.dart';
 
 class MenuService {
   Future<List<Menu>> fetchMenu() async {
-    final String response = await rootBundle.loadString('assets/menucsvjson.json');
+    final String response = await rootBundle.loadString('assets/menu_csvjson.json');
     final List<dynamic> data = json.decode(response);
     return data.map((json) => Menu.fromJson(json)).toList();
   }
