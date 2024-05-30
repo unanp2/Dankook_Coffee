@@ -4,7 +4,7 @@ class ShoppingItem {
   final String menuPictureUrl;
   final String menuName;
   final int menuCost;
-  int menuQuantity;  // 수량은 변경 가능하도록
+  int menuQuantity;
   final int menuAllCost;
   final String menuEat;
 
