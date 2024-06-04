@@ -5,6 +5,9 @@ import 'store/store_info.dart';
 import 'menu/menu_page.dart';
 import 'shopping/cart_model.dart';
 import 'shopping/cart_page.dart';
+import 'review/review_store.dart';
+import 'review/review_store_empty.dart';
+import 'review/review_write.dart';
 
 void main() {
   runApp(const FigmaToCodeApp());
@@ -29,6 +32,7 @@ class FigmaToCodeApp extends StatelessWidget {
           '/store-info': (context) => StoreInfoPage(),
           '/menu': (context) => MenuPage(),
           '/cart': (context) => CartPage(),
+          '/review': (context) => ReviewListPage(),
         },
       ),
     );
