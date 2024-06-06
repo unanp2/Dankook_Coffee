@@ -1,3 +1,5 @@
+import 'package:dankookcoffee/review/review_page.dart';
+
 import '../login/login_home.dart';
 import '../store/store_info.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +40,7 @@ class MyApp extends StatelessWidget {
           '/homepage': (context) => HomePage(),
           '/store': (context) => StoreInfoPage(),
           '/menu': (context) => MenuPage(),
+          '/review': (context) => ReviewPage(),
           CartPage.routeName: (context) => CartPage(),
           // 다른 페이지들도 여기에 추가
         },

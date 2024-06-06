@@ -1,3 +1,4 @@
+import 'package:dankookcoffee/review/review.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'dart:convert';
@@ -71,8 +72,8 @@ class DatabaseHelper {
         store_picture_url TEXT NOT NULL,
         rating INTEGER NOT NULL,
         content TEXT,
-        created_date TIMESTAMP NOT NULL,
-        modified_date TIMESTAMP NOT NULL,
+        created_date TEXT NOT NULL,
+        modified_date TEXT NOT NULL,
         FOREIGN KEY(user_id) REFERENCES user(user_id),
         FOREIGN KEY(store_id) REFERENCES store(store_id)
       )
@@ -139,11 +140,13 @@ class DatabaseHelper {
     final List<dynamic> menuData = json.decode(menuJson);
 
     for (var store in storeData) {
-      await db.insert('store', store, conflictAlgorithm: ConflictAlgorithm.replace);
+      await db.insert('store', store,
+          conflictAlgorithm: ConflictAlgorithm.replace);
     }
 
     for (var menu in menuData) {
-      await db.insert('menu', menu, conflictAlgorithm: ConflictAlgorithm.replace);
+      await db.insert('menu', menu,
+          conflictAlgorithm: ConflictAlgorithm.replace);
     }
   }
 
@@ -189,22 +192,27 @@ class DatabaseHelper {
 
   Future<void> insertShoppingItem(ShoppingItem item) async {
     final db = await database;
-    await db.insert('shopping', item.toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
+    await db.insert('shopping', item.toJson(),
+        conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<void> updateShoppingItem(ShoppingItem item) async {
     final db = await database;
-    await db.update('shopping', item.toJson(), where: 'menu_id = ? AND store_id = ?', whereArgs: [item.menuId, item.storeId]);
+    await db.update('shopping', item.toJson(),
+        where: 'menu_id = ? AND store_id = ?',
+        whereArgs: [item.menuId, item.storeId]);
   }
 
   Future<void> deleteShoppingItem(int menuId, int storeId) async {
     final db = await database;
-    await db.delete('shopping', where: 'menu_id = ? AND store_id = ?', whereArgs: [menuId, storeId]);
+    await db.delete('shopping',
+        where: 'menu_id = ? AND store_id = ?', whereArgs: [menuId, storeId]);
   }
 
   Future<int> getTotalAmount() async {
     final db = await database;
-    final result = await db.rawQuery('SELECT SUM(menu_cost * menu_quantity) as total FROM shopping');
+    final result = await db.rawQuery(
+        'SELECT SUM(menu_cost * menu_quantity) as total FROM shopping');
     var total = result.first['total'];
     if (total == null) {
       return 0;
@@ -225,5 +233,31 @@ class DatabaseHelper {
       whereArgs: [username, email],
     );
     return result.isNotEmpty;
+  }
+
+  Future<void> insertReview(Review review) async {
+    final db = await database;
+    await db.insert(
+      'review',
+      review.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<List<Review>> getReviews() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query('review');
+    return List.generate(maps.length, (i) {
+      return Review(
+        review_id : maps[i]['review_id'],
+        user_id : maps[i]['user_id'],
+        store_id : maps[i]['store_id'],
+        store_picture_url : maps[i]['store_picture_url'],
+        rating : maps[i]['rating'],
+        content : maps[i]['content'],
+        created_date : maps[i]['created_date'],
+        modified_date : maps[i]['modified_date'],
+      );
+    });
   }
 }
