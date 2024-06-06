@@ -9,8 +9,6 @@ class EmptyReview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Rating rating = Rating(rating: 0);
-    Content content = Content(content: '');
     return SingleChildScrollView(
       child: Container(
         width: 400,
@@ -51,12 +49,27 @@ class EmptyReview extends StatelessWidget {
             SizedBox(
               height: 270,
             ),
-            ReviewBlackButton(
-              button_text: 'Write a review',
-              button_page: ReviewEditPage(review_id: 0,),
-              rating: rating,
-              content: content,
-              review_id: 0,
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ReviewEditPage(review_id: 0)));
+              },
+              child: Container(
+                height: 56,
+                width: 360,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: Colors.black),
+                child: Center(
+                  child: Text(
+                    "Write a review",
+                    style: TextStyle(
+                        fontWeight: FontWeight.w700, color: Colors.white),
+                  ),
+                ),
+              ),
             )
           ],
         ),
