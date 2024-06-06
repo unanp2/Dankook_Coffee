@@ -244,19 +244,28 @@ class DatabaseHelper {
     );
   }
 
+  Future<void> deleteReview(int reviewId) async {
+    final db = await database;
+    await db.delete(
+      'review',
+      where: 'review_id = ?',
+      whereArgs: [reviewId],
+    );
+  }
+
   Future<List<Review>> getReviews() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query('review');
     return List.generate(maps.length, (i) {
       return Review(
-        review_id : maps[i]['review_id'],
-        user_id : maps[i]['user_id'],
-        store_id : maps[i]['store_id'],
-        store_picture_url : maps[i]['store_picture_url'],
-        rating : maps[i]['rating'],
-        content : maps[i]['content'],
-        created_date : maps[i]['created_date'],
-        modified_date : maps[i]['modified_date'],
+        review_id: maps[i]['review_id'],
+        user_id: maps[i]['user_id'],
+        store_id: maps[i]['store_id'],
+        store_picture_url: maps[i]['store_picture_url'],
+        rating: maps[i]['rating'],
+        content: maps[i]['content'],
+        created_date: maps[i]['created_date'],
+        modified_date: maps[i]['modified_date'],
       );
     });
   }
