@@ -23,10 +23,10 @@ class _LoginPageState extends State<LoginPage> {
   String _errorMessage = '';
 
   Future<void> _login() async {
-    String id = _idController.text;
+    String email = _idController.text;
     String password = _passwordController.text;
-    bool userExists = await _databaseHelper.userExists(id, password);
-    if (userExists) {
+    bool checkUser = await _databaseHelper.checkUser(email, password);
+    if (checkUser) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => HomePage()),

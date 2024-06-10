@@ -235,6 +235,26 @@ class DatabaseHelper {
     return result.isNotEmpty;
   }
 
+  Future<bool> checkUser(String loginid, String password) async {
+    final db = await database;
+
+    // 사용자 ID로 비밀번호 조회
+    final check_pwd =
+        await db.query('user', where: 'login_id = ?', whereArgs: [loginid]);
+
+    // 결과가 존재하는지 확인
+    if (check_pwd.isNotEmpty) {
+      // 첫 번째 결과 행에서 password 열의 값을 가져옴
+      final dbPassword = check_pwd.first['password'];
+
+      // 입력된 비밀번호와 DB 비밀번호를 비교
+      if (dbPassword == password) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   Future<void> insertReview(Review review) async {
     final db = await database;
     await db.insert(
