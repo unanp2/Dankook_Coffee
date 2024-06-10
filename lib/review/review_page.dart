@@ -16,7 +16,7 @@ class ReviewPage extends StatefulWidget {
 class _ReviewPageState extends State<ReviewPage> {
   late DatabaseHelper DBHelper;
   List<Review> Review_List = [];
-  double rating_avg = 4.0;
+  double rating_avg = 0.0;
   String username = 'None';
 
   @override
@@ -26,11 +26,18 @@ class _ReviewPageState extends State<ReviewPage> {
     DBHelper = DatabaseHelper();
     _loadReview();
   }
-
+  void get_rating() {
+    int sum = 0;
+    for (int i = 0; i < Review_List.length; i++) {
+      sum += Review_List[i].rating;
+    }
+    rating_avg = sum / Review_List.length;
+  }
   Future<void> _loadReview() async {
     List<Review> review = await DBHelper.getReviews();
     setState(() {
       Review_List = review;
+      get_rating();
     });
     print(Review_List);
   }
