@@ -26,6 +26,7 @@ class _ReviewPageState extends State<ReviewPage> {
     DBHelper = DatabaseHelper();
     _loadReview();
   }
+
   void get_rating() {
     int sum = 0;
     for (int i = 0; i < Review_List.length; i++) {
@@ -33,6 +34,7 @@ class _ReviewPageState extends State<ReviewPage> {
     }
     rating_avg = sum / Review_List.length;
   }
+
   Future<void> _loadReview() async {
     List<Review> review = await DBHelper.getReviews();
     setState(() {
@@ -89,7 +91,7 @@ class _ReviewPageState extends State<ReviewPage> {
                                     size: 35,
                                   ),
                                   Text(
-                                    ' ${rating_avg}',
+                                    ' ${rating_avg.toStringAsFixed(1)}',
                                     style: TextStyle(fontSize: 20),
                                   )
                                 ],
@@ -133,32 +135,66 @@ class _ReviewPageState extends State<ReviewPage> {
                                       offset: Offset(0, 3))
                                 ]),
                             child: ListTile(
-                                title: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Container(
-                                            width: 20,
-                                            height: 20,
-                                            decoration: BoxDecoration(
-                                                image: DecorationImage(
-                                                    image: AssetImage(
-                                                        'assets/images/profile_image.png')))),
-                                                        Text('  ${username}'),
-                                                        SizedBox(width: 190,),
-                                                        Icon(Icons.star, color: Colors.yellow, size: 25,),
-                                                        Text(review.rating.toString())
-                                      ],
-                                    ),
-                                    SizedBox(height: 8,),
-                                    Text(review.content.toString()),
-                                  ],
-                                ),
-                                onTap: () {
-                                  DBHelper.deleteReview(review.review_id);
-                                  _loadReview();
-                                }),
+                              title: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                          width: 20,
+                                          height: 20,
+                                          decoration: BoxDecoration(
+                                              image: DecorationImage(
+                                                  image: AssetImage(
+                                                      'assets/images/profile_image.png')))),
+                                      Text('  ${username}'),
+                                      SizedBox(
+                                        width: 185,
+                                      ),
+                                      Icon(
+                                        Icons.star,
+                                        color: Colors.yellow,
+                                        size: 25,
+                                      ),
+                                      Text(review.rating.toString())
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 8,
+                                  ),
+                                  Text(review.content.toString()),
+                                  Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 200,
+                                      ),
+                                      IconButton(
+                                        onPressed: () {
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ReviewEditPage(
+                                                          review_id: review
+                                                              .review_id)));
+                                        },
+                                        icon: Icon(Icons.edit),
+                                        iconSize: 16,
+                                      ),
+                                      IconButton(
+                                        onPressed: () {
+                                          DBHelper.deleteReview(
+                                              review.review_id);
+                                          _loadReview();
+                                        },
+                                        icon: Icon(Icons.delete),
+                                        iconSize: 16,
+                                      )
+                                    ],
+                                  )
+                                ],
+                              ),
+                            ),
                           );
                         },
                       ),
